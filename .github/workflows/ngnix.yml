@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-      if: ${{github.event.inputs.env}} == "DEV"
+      if: ${{github.event.inputs.env}} == "dev"
         CHANGE_TARGET = "DEV"
       uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
       with:
@@ -51,8 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-      if: ${{github.event.inputs.env}} == "QA"
-        CHANGE_TARGET = "QA"
+      if: ${{github.event.inputs.env}} == "qa"
+        CHANGE_TARGET = "qa"
       uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
       with:
           ENVIRONMENT_MEMBERS = ["qltfangx1.qa.tfanet.org", "qltfangx2.qa.tfanet.org"];
@@ -60,8 +60,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-      if: ${{github.event.inputs.env}} == "PT"
-        CHANGE_TARGET = "PT"
+      if: ${{github.event.inputs.env}} == "pt"
+        CHANGE_TARGET = "pt"
       uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
       with:
           ENVIRONMENT_MEMBERS: '["tltfangx1.pt.tfanet.org", "tltfangx2.pt.tfanet.org"]'
@@ -72,17 +72,18 @@ jobs:
       run: |
           CONFIG_RELOAD_COMMAND = "sudo nginx -s reload -c nginx_${github.event.inputs.env}.conf"
           SYNTAX_CHECK_COMMAND = "sudo nginx -t -c nginx_${github.event.inputs.env}.conf"   
-  Git-clone/merge:
+  Git-clonemerge:
     runs-on: azurevm
     environment: 'prod'
     steps:
     -  uses: actions/checkout@v1
-    -  run:  git clone -b  ${github.event.inputs.CHANGE_BRANCH} https://${jenkins_gh_user}:${jenkins_gh_pwd}@github.com/teach-for-america/NginX_APIGateway.git ${DEST_FOLDER}; s+
-            "cd ${DEST_FOLDER}; " +
-            "git checkout ${CHANGE_TARGET}; " +
-            "git merge ${github.event.inputs.CHANGE_BRANCH} --no-commit --no-ff; "
-             git commit -i -m \"' + getCommitMessage() + '\"; ' +
-                    "git push; " : ""
+    -  run:  |
+             git clone -b  ${github.event.inputs.CHANGE_BRANCH} https://${jenkins_gh_user}:${jenkins_gh_pwd}@github.com/teach-for-america/NginX_APIGateway.git ${DEST_FOLDER}
+             cd ${DEST_FOLDER}
+             git checkout ${CHANGE_TARGET}
+             git merge ${github.event.inputs.CHANGE_BRANCH} --no-commit --no-ff
+             git commit -i -m 
+             git push; 
   Git-pull:
      runs-on: members
      steps:
@@ -93,8 +94,8 @@ jobs:
     runs-on: azurevm
     steps:
     - name: Log in with Azure
-        uses: azure/CLI@v1
-        with:
+      uses: azure/CLI@v1
+      with:
         azcliversion: 2.0.72
         inlineScript: |
             az vm stop --resource-group rg-prod-cots-private-nginx-01 --name vm-prod-nginxci-01
