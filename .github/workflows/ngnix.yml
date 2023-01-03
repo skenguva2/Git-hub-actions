@@ -83,7 +83,7 @@ jobs:
             "git merge ${github.event.inputs.CHANGE_BRANCH} --no-commit --no-ff; "
              git commit -i -m \"' + getCommitMessage() + '\"; ' +
                     "git push; " : ""
-   Git-pull:
+  Git-pull:
      runs-on: members
      steps:
      - run: |
