@@ -34,7 +34,7 @@ jobs:
     steps:		
     - name: run step if multiline not null
       environment: 'prod'
-      CHANGE_TARGET: "master"
+        CHANGE_TARGET: "master"
       uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
       with:
         ENVIRONMENT_MEMBERS: '["pltfangx1.prod.tfanet.org", "pltfangx2.prod.tfanet.org"]'
