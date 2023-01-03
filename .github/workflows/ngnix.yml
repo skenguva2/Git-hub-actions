@@ -72,6 +72,23 @@ jobs:
       run: |
           CONFIG_RELOAD_COMMAND = "sudo nginx -s reload -c nginx_${github.event.inputs.env}.conf"
           SYNTAX_CHECK_COMMAND = "sudo nginx -t -c nginx_${github.event.inputs.env}.conf"   
+  Git-clone/merge:
+    runs-on: azurevm
+    environment: 'prod'
+    steps:
+    -  uses: actions/checkout@v1
+    -  run:  git clone -b  ${github.event.inputs.CHANGE_BRANCH} https://${jenkins_gh_user}:${jenkins_gh_pwd}@github.com/teach-for-america/NginX_APIGateway.git ${DEST_FOLDER}; s+
+            "cd ${DEST_FOLDER}; " +
+            "git checkout ${CHANGE_TARGET}; " +
+            "git merge ${github.event.inputs.CHANGE_BRANCH} --no-commit --no-ff; "
+             git commit -i -m \"' + getCommitMessage() + '\"; ' +
+                    "git push; " : ""
+   Git-pull:
+     runs-on: members
+     steps:
+     - run: |
+            'ssh nginxuser@' + member + ' "cd ${DEST_FOLDER}; git pull"'
+            'ssh nginxuser@' + member + ' ' + CONFIG_RELOAD_COMMAND'	  
   Azure-stop:
     runs-on: azurevm
     steps:
