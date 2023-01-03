@@ -3,18 +3,18 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-	CHANGE_BRANCH:
-	  description: 'branch name'
-    required: true
-  env:
-    description: 'environment'
-    required: true
-    type: choice
-    options:
-    - dev
-    - qa
-    - pt
-    - prod
+      CHANGE_BRANCH:
+	description: 'branch name'
+        required: true
+      env:
+        description: 'environment'
+        required: true
+        type: choice
+        options:
+        - dev
+        - qa
+        - pt
+        - prod
 jobs:
   Azure-start:
     runs-on: ubuntu-latest
