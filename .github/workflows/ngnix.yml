@@ -1,0 +1,84 @@
+name: Azure_PROD_Nginx
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+	CHANGE_BRANCH:
+	  description: 'branch name'
+    required: true
+  env:
+    description: 'environment'
+    required: true
+    type: choice
+    options:
+    - dev
+    - qa
+    - pt
+    - prod
+jobs:
+  Azure-start:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Azure CLI script
+        uses: azure/CLI@v1
+        with:
+        azcliversion: 2.0.72
+        inlineScript: |
+            az vm start --resource-group rg-prod-cots-private-nginx-01 --name vm-prod-nginxci-01
+  prod:
+    runs-on: ubuntu-latest
+    steps:		
+    - name: run step if multiline not null
+      environment: 'prod'
+      CHANGE_TARGET = "master"
+      uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+      with:
+        ENVIRONMENT_MEMBERS: '["pltfangx1.prod.tfanet.org", "pltfangx2.prod.tfanet.org"]'
+  dev:
+    runs-on: ubuntu-latest
+    steps:
+    - name: changing target based on env
+        if: ${{github.event.inputs.env}} == "DEV"
+        CHANGE_TARGET = "DEV"
+        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+        with:
+          ENVIRONMENT_MEMBERS = ["dltfangx1.dev.tfanet.org"];
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+    - name: changing target based on env
+        if: ${{github.event.inputs.env}} == "QA"
+        CHANGE_TARGET = "QA"
+        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+        with:
+          ENVIRONMENT_MEMBERS = ["qltfangx1.qa.tfanet.org", "qltfangx2.qa.tfanet.org"];
+  pt:
+    runs-on: ubuntu-latest
+    steps:
+    - name: changing target based on env
+        if: ${{github.event.inputs.env}} == "PT"
+        CHANGE_TARGET = "PT"
+        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+        with:
+          ENVIRONMENT_MEMBERS = ["tltfangx1.pt.tfanet.org", "tltfangx2.pt.tfanet.org"];
+  ngnix-config:
+    runs-on: azurevm
+    steps:
+    - name: setting ngnix configuration
+      run: |
+          CONFIG_RELOAD_COMMAND = "sudo nginx -s reload -c nginx_${github.event.inputs.env}.conf"
+          SYNTAX_CHECK_COMMAND = "sudo nginx -t -c nginx_${github.event.inputs.env}.conf"   
+  Azure-stop:
+    runs-on: azurevm
+    steps:
+    - name: Log in with Azure
+        uses: azure/CLI@v1
+        with:
+        azcliversion: 2.0.72
+        inlineScript: |
+            az vm stop --resource-group rg-prod-cots-private-nginx-01 --name vm-prod-nginxci-01
+  
