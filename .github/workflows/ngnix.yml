@@ -4,7 +4,7 @@ on:
     # Inputs the workflow accepts.
     inputs:
       CHANGE_BRANCH:
-	description: 'branch name'
+        description: 'branch name'
         required: true
       env:
         description: 'environment'
@@ -20,12 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Log in with Azure
-        uses: azure/login@v1
-        with:
+      uses: azure/login@v1
+      with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
+      uses: azure/CLI@v1
+      with:
         azcliversion: 2.0.72
         inlineScript: |
             az vm start --resource-group rg-prod-cots-private-nginx-01 --name vm-prod-nginxci-01
@@ -34,7 +34,7 @@ jobs:
     steps:		
     - name: run step if multiline not null
       environment: 'prod'
-      CHANGE_TARGET = "master"
+      CHANGE_TARGET: "master"
       uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
       with:
         ENVIRONMENT_MEMBERS: '["pltfangx1.prod.tfanet.org", "pltfangx2.prod.tfanet.org"]'
@@ -42,29 +42,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-        if: ${{github.event.inputs.env}} == "DEV"
+      if: ${{github.event.inputs.env}} == "DEV"
         CHANGE_TARGET = "DEV"
-        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
-        with:
-          ENVIRONMENT_MEMBERS = ["dltfangx1.dev.tfanet.org"];
+      uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+      with:
+          ENVIRONMENT_MEMBERS:  '["dltfangx1.dev.tfanet.org"]'
   qa:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-        if: ${{github.event.inputs.env}} == "QA"
+      if: ${{github.event.inputs.env}} == "QA"
         CHANGE_TARGET = "QA"
-        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
-        with:
+      uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+      with:
           ENVIRONMENT_MEMBERS = ["qltfangx1.qa.tfanet.org", "qltfangx2.qa.tfanet.org"];
   pt:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
-        if: ${{github.event.inputs.env}} == "PT"
+      if: ${{github.event.inputs.env}} == "PT"
         CHANGE_TARGET = "PT"
-        uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
-        with:
-          ENVIRONMENT_MEMBERS = ["tltfangx1.pt.tfanet.org", "tltfangx2.pt.tfanet.org"];
+      uses: lucaspinheirogit/list-from-string-array-action@v1.4.3
+      with:
+          ENVIRONMENT_MEMBERS: '["tltfangx1.pt.tfanet.org", "tltfangx2.pt.tfanet.org"]'
   ngnix-config:
     runs-on: azurevm
     steps:
