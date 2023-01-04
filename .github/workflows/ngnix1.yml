@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-	    CHANGE_BRANCH:
-	      description: 'branch name'
+      CHANGE_BRANCH:
+        description: 'branch name'
         required: true
       env:
         description: 'environment'
