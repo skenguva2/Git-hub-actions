@@ -35,36 +35,36 @@ jobs:
     steps:		
     - name: run step if multiline not null
       if: ${{github.event.inputs.env}} == "prod"      
-       CHANGE_TARGET: "master"
+      CHANGE_TARGET: "master"
   dev:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
       if: ${{github.event.inputs.env}} == "dev"
-        CHANGE_TARGET: "dev"
+      CHANGE_TARGET: "dev"
       
   qa:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
       if: ${{github.event.inputs.env}} == "qa"
-        CHANGE_TARGET: "qa"
+      CHANGE_TARGET: "qa"
         
   pt:
     runs-on: ubuntu-latest
     steps:
     - name: changing target based on env
       if: ${{github.event.inputs.env}} == "pt"
-        CHANGE_TARGET: "pt"
+      CHANGE_TARGET: "pt"
         
-   ngnix-config:
-     runs-on: azurevm
-     steps:
-     - name: setting ngnix configuration
-       run: |
+  ngnix-config:
+    runs-on: azurevm
+    steps:
+    - name: setting ngnix configuration
+      run: |
           CONFIG_RELOAD_COMMAND = "sudo nginx -s reload -c nginx_${github.event.inputs.env}.conf"
           SYNTAX_CHECK_COMMAND = "sudo nginx -t -c nginx_${github.event.inputs.env}.conf"
-   Git-clone/merge:
+  Git-clone/merge:
     runs-on: azurevm
     environment: 'prod'
     steps:
@@ -74,51 +74,52 @@ jobs:
             "git checkout ${CHANGE_TARGET}; " +
             "git merge ${github.event.inputs.CHANGE_BRANCH} --no-commit --no-ff; "
              git commit -i -m \"' + getCommitMessage() + '\"; ' +
-                    "git push; " : ""
-   Git-pulldev:
-     runs-on:  plmwoans2
-     steps:
-	   if: ${{github.event.inputs.env}} == "dev"
-     - run: |
-            'ssh nginxuser@dltfangx1.dev.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
-            'ssh nginxuser@dltfangx1.dev.tfanet.org + CONFIG_RELOAD_COMMAND'
-   Git-pullqa:
-     runs-on:  plmwoans2
-     steps:
-	   if: ${{github.event.inputs.env}} == "qa"
-     - run: |
+                    
+  Git-pulldev:
+    runs-on:  plmwoans2
+    steps:
+    if: ${{github.event.inputs.env}} == "dev"
+    - run: |
+           'ssh nginxuser@dltfangx1.dev.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
+           'ssh nginxuser@dltfangx1.dev.tfanet.org + CONFIG_RELOAD_COMMAND'
+  Git-pullqa:
+    runs-on:  plmwoans2
+    steps:
+    if: ${{github.event.inputs.env}} == "qa"
+    - run: |
             'ssh nginxuser@qltfangx1.qa.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@qltfangx1.qa.tfanet.org + CONFIG_RELOAD_COMMAND'
-			      'ssh nginxuser@qltfangx2.qa.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
+	    'ssh nginxuser@qltfangx2.qa.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@qltfangx2.qa.tfanet.org + CONFIG_RELOAD_COMMAND'
 			
-	Git-pullpt:
+   Git-pullpt:
      runs-on:  plmwoans2
      steps:
-	 if: ${{github.event.inputs.env}} == "pt"
+     if: ${{github.event.inputs.env}} == "pt"
      - run: |
             'ssh nginxuser@tltfangx1.pt.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@tltfangx1.pt.tfanet.org + CONFIG_RELOAD_COMMAND'
-			      'ssh nginxuser@tltfangx2.pt.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
+	    'ssh nginxuser@tltfangx2.pt.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@tltfangx2.pt.tfanet.org + CONFIG_RELOAD_COMMAND'	
     			
-    Git-pullprod:
+   Git-pullprod:
      runs-on:  plmwoans2
-	 environment: 'prod'
+     environment: 'prod'
      steps:
-	 - run: |
+     - run: |
             'ssh nginxuser@pltfangx1.prod.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@pltfangx1.prod.tfanet.org + CONFIG_RELOAD_COMMAND'
-			      'ssh nginxuser@pltfangx2.prod.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
+	    'ssh nginxuser@pltfangx2.prod.tfanet.org  "cd ${DEST_FOLDER}; git pull"'
             'ssh nginxuser@pltfangx2.prod.tfanet.org + CONFIG_RELOAD_COMMAND'
 	
 			
-			
-    - name: Azure CLI script
-        uses: azure/CLI@v1
-        with:
-        azcliversion: 2.0.72
-        inlineScript: |
+   Azure-stop:
+     runs-on: azurevm			
+     - name: Azure CLI script
+       uses: azure/CLI@v1
+       with:
+         azcliversion: 2.0.72
+         inlineScript: |
             az vm stop --resource-group rg-prod-cots-private-nginx-01 --name vm-prod-nginxci-01
 			
 			
